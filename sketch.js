@@ -17,6 +17,8 @@ var count;
 var startT, deltaT = 900
 var gasGroup;
 var pressCount;
+var canreplace;
+var timer = 10;
 function preload(){
   backimage=loadImage("images/back.jpg");
   Rarrow=loadImage("images/next.png");
@@ -26,13 +28,16 @@ function preload(){
  seed=loadImage("images/plant.png");
  co2=loadImage("images/co2.png");
  o2=loadImage("images/oxygen.png");
- cloud=loadImage("images/cloud.png");
+ cloud=loadAnimation("images/cloud.png");
+ cloudreplace = loadAnimation("images/cloudreplace.png");
 sun=loadImage("images/sun.png");
-can=loadImage("images/watering-can.png");
+can=loadAnimation("images/watering-can.png");
  can1=loadImage("images/watering-can1.png");
  bubble=loadImage("images/co2.png");
  sac=loadImage("images/fertiliser sac.png");
  f=loadImage("images/f.png");
+ canreplace = loadAnimation("images/fact 4.jpg");
+ 
  //grownPlant = loadImage("");
 }
 
@@ -64,17 +69,20 @@ function setup() {
   seedSprite.visible=false;
 
   cloudSprite=createSprite(550,200,20,20);
-  cloudSprite.addImage("cloud",cloud);
+  cloudSprite.addAnimation("cloud",cloud);
+  cloudSprite.addAnimation("cloudreplace",cloudreplace);
   cloudSprite.scale=0.3;
   cloudSprite.visible=false;
 
   cloud1Sprite=createSprite(450 ,200,20,20);
-  cloud1Sprite.addImage("cloud",cloud);
+  cloud1Sprite.addAnimation("cloud",cloud);
   cloud1Sprite.scale=0.2;
   cloud1Sprite.visible=false;
 
   canSprite=createSprite(1000,600,20,20);
-  canSprite.addImage("can",can);
+  canSprite.addAnimation("can",can);
+  canSprite.addAnimation("canreplace", canreplace)
+  
   canSprite.scale=0.2;
   canSprite.visible=false;
  
@@ -101,7 +109,7 @@ function setup() {
 
  
 gameState="start";
-count=200;
+count=60;
 
 startT=millis();
 gasGroup= createGroup();
@@ -123,8 +131,28 @@ function draw() {
   text("Nuture it and become an ENVIORNMENTAL CHAMPION",displayWidth/4,displayHeight/4+50);
   }
   
+  
 
- 
+  if(frameCount%50==0 && timer > 0){ 
+    timer = timer - 1; 
+  } 
+  if(timer === 0){ 
+    gameState = "end";
+  fill("yellow"); 
+  textSize(40); 
+  text("GAME OVER!!", 450,350); 
+   
+}
+
+if(timer<10 && timer>6){
+  fill("blue"); 
+  textSize(20); 
+  textFont('Verdana');
+  textStyle(BOLD)
+  stroke("white");
+  text("'Remember to protect the ", 150,400); 
+  text("plant from harmful gases'", 150,420); 
+}
   if (mousePressedOver(RarrowSprite)) {
     gameState="play";
    scene.changeAnimation("main",mainB);
@@ -132,7 +160,8 @@ function draw() {
   mbadgeSprite.visible = false;
   RarrowSprite.visible=false;
   seedSprite.visible=true;
-  setInterval(timer,2000);
+  //setInterval(timer,200,0);
+  
  // co2.visible=true;
  cloudSprite.visible=true;
  canSprite.visible=true;
@@ -145,12 +174,50 @@ bubbleSprite.visible=true;
     if(gameState==="play") {
       fill("yellow");
       textSize(40);
-      text("TIME LEFT:" + count, 800,200);
-    } 
+      text("TIME LEFT:" + timer, 800,200);
+      
+      if (World.frameCount%50===0) {
+        
+        var co=createSprite(random(900,1100),300,20,20);
+        co.addImage("bubble",bubble);
+        co.scale=random(0.09,0.1);
+        co.velocityX=-1;
+        co.velocityY=0.5;
+       
+        gasGroup.add(co);
+        var o=createSprite(random(900,1100),300,20,20);
+        o.addImage("o",o2);
+        o.scale=random(0.01,0.1);
+        o.velocityX=-1;
+        o.velocityY=0.5;
+        
+        gasGroup.add(o)
+        
+        
+         }
+
+         for(var i = 0;i<gasGroup.length;i++){ 
+           if(gasGroup.get(i).isTouching(seedSprite)){
+              gameState = "end"
+              timer = 0;
+              fill("yellow"); 
+              textSize(40); 
+              text("GAME OVER!!", 450,350); 
+
+           }
+          if (mousePressedOver(gasGroup.get(i))) {
+            gasGroup.get(i).destroy();
+            //score = score -1;
+            //reset();
+            //gameState = "serve";
+            }
+       }
+    
       if (mousePressedOver(canSprite)) {
        // canSprite.visible=false;
        //
-      canSprite.visible=false;
+       canSprite.scale = 0.16;
+      canSprite.changeAnimation("canreplace",canreplace);
        can1Sprite.visible=true;
        pressCount = pressCount + 1;
       }
@@ -165,34 +232,7 @@ bubbleSprite.visible=true;
        text("Caffine serves the function of a pesticide in coffee plant",1000,450);
        }
       
-       if (mousePressedOver(bubbleSprite)) {
-        gasGroup.setVisibleEach(true);
-        pressCount = pressCount + 1;
-       }
-
-       if(pressCount === 4){
-          //seed.addImage();
-       }
-
-        if (millis() > startT + deltaT) {
-          startT = millis()
-          
-        var co=createSprite(random(900,1100),300,20,20);
-        co.addImage("bubble",bubble);
-        co.scale=random(0.09,0.1);
-        co.velocityX=-1;
-        co.velocityY=0.5;
-        co.visible = false;
-        gasGroup.add(co);
-        var o=createSprite(random(900,1100),300,20,20);
-        o.addImage("o",o2);
-        o.scale=random(0.01,0.1);
-        o.velocityX=-1.5;
-        o.velocityY=0.5;
-        o.visible = false
-        gasGroup.add(o)
-        
-         }
+       
       //}
       if(mousePressedOver(cloudSprite)|| mousePressedOver(cloud1Sprite)){
         pressCount = pressCount + 1;
@@ -204,6 +244,8 @@ bubbleSprite.visible=true;
         
         cloudSprite.velocityX=0.5;
         cloud1Sprite.velocityX=-0.5;
+        cloudSprite.changeAnimation("cloudreplace",cloudreplace);
+
         }else{
          
         
@@ -211,6 +253,7 @@ bubbleSprite.visible=true;
           cloud1Sprite.velocityX=0; 
         }
        
+      } 
       }
      
     }
