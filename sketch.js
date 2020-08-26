@@ -24,6 +24,7 @@ var water = false;
 var fertiliser = false;
 var sunlight = false;
 var destroyCount = 0;
+var music;
 
 function preload() {
   //Load images
@@ -45,6 +46,7 @@ function preload() {
   f = loadImage("images/f.png");
   canreplace = loadAnimation("images/F3.jpg");
   sacreplace = loadAnimation("images/F4.jpg");
+  music = loadSound("sounds/music.mp3");
 }
 
 function setup() {
@@ -131,6 +133,8 @@ function setup() {
   startT = millis();
   gasGroup = createGroup();
 
+  music.loop();
+  music.setVolume(0.5);
   pressCount = 0;
 }
 
@@ -138,7 +142,7 @@ function draw() {
   //set background to white
   background(255, 255, 255);
   drawSprites();
-
+  music.loop();
   //In the gamestate start display the first page
   if (gameState === "start") {
     textSize(20);
@@ -161,6 +165,7 @@ function draw() {
   //Things that should happen in gamestate play
   if (gameState === "play") {
     //Make all the sprites visible
+
     scene.changeAnimation("main", mainB);
     scene.scale = 1.5;
     mbadgeSprite.visible = false;
@@ -280,6 +285,7 @@ function draw() {
 
   //Things that should happen in the end state
   if (gameState === "end") {
+    music.stop();
     fill("teal");
     textSize(40);
     textStyle(BOLD);
@@ -290,6 +296,7 @@ function draw() {
 
   //Things that should happen when player wins
   if (gameState === "win") {
+    music.stop();
     scene.changeAnimation("happy", happytree);
     scene.x = displayWidth / 4;
     scene.scale = 0.8;
@@ -313,6 +320,7 @@ function draw() {
     textStyle(BOLD);
     stroke("black");
     text("Congrats!!You Win", 800, 300);
+    //music.stop();
   }
   //GameState win ends here
 }
